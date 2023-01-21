@@ -75,8 +75,8 @@ data "aws_ami" "ubuntu" {
 resource "aws_instance" "deployment_instance" {
   ami           = data.aws_ami.ubuntu.id
   instance_type = "t2.micro"
-  count = 1
-  vpc_security_group_ids
+  count         = 1
+
 
   tags = {
     Name = "deployment_instance-${var.environment[0]}"
