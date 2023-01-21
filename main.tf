@@ -77,6 +77,6 @@ resource "aws_instance" "deployment_instance" {
   instance_type = "t2.micro"
 
   tags = {
-    Name = "deployment_instance"
+    Name = "deployment_instance-${var.environment[0]}"
   }
 }
