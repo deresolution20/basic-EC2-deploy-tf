@@ -109,61 +109,60 @@ resource "aws_route_table" "aws_rtb" {
   }
 }
 
+
+/* locals {
+  ingress_rules = [{
+    port        = 443
+    description = "Port 443"
+    },
+    {
+      port        = 80
+      description = "Port 80"
+    }
+  ]
+} */
+
 #creating the security group for public subnet
+#uses variable map for ingress rules
 
 resource "aws_security_group" "public_sg" {
-  name        = "public security group"
-  description = "Allow EC2 inbound traffic for ${var.environment[0]} server"
+  name        = "vpc-web-${terraform.workspace}"
   vpc_id      = aws_vpc.main-vpc.id
+  description = "core-sg-public"
 
-  ingress {
-    description = "EC2 from VPC"
-    from_port   = 443
-    to_port     = 443
-    protocol    = "tcp"
-    cidr_blocks = [aws_vpc.main-vpc.cidr_block]
+  dynamic "ingress" {
 
-  }
+    for_each = var.web_ingress
 
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
+    content {
 
-  }
-
-  tags = {
-    Name = "public_sg"
+      description = ingress.value.description
+      from_port   = ingress.value.port
+      to_port     = ingress.value.port
+      protocol    = ingress.value.protocol
+      cidr_blocks = ingress.value.cidr_blocks
+    }
   }
 }
-
 
 #creating the security group for private subnet
 
 resource "aws_security_group" "private_sg" {
-  name        = "private security group"
-  description = "Allow EC2 inbound traffic for ${var.environment[0]} server"
+  name        = "vpc-web-${terraform.workspace}"
   vpc_id      = aws_vpc.main-vpc.id
+  description = "core-sg-private"
 
-  ingress {
-    description = "EC2 from VPC"
-    from_port   = 443
-    to_port     = 443
-    protocol    = "tcp"
-    cidr_blocks = [aws_vpc.main-vpc.cidr_block]
+  dynamic "ingress" {
 
-  }
+    for_each = var.web_ingress
 
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
+    content {
 
-  }
-
-  tags = {
-    Name = "private_sg"
+      description = ingress.value.description
+      from_port   = ingress.value.port
+      to_port     = ingress.value.port
+      protocol    = ingress.value.protocol
+      cidr_blocks = ingress.value.cidr_blocks
+    }
   }
 }
