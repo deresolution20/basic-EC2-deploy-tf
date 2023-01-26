@@ -72,10 +72,16 @@ data "aws_ami" "ubuntu" {
   owners = ["099720109477"] # Canonical
 }
 
+# Terraform Resource Block - To Build Web Server in Public Subnet
+
 resource "aws_instance" "deployment_instance" {
-  ami           = data.aws_ami.ubuntu.id
-  instance_type = "t2.micro"
-  count         = 1
+
+  ami             = data.aws_ami.ubuntu.id
+  subnet_id       = aws_subnet.public_subnet.id
+  security_groups = [aws_security_group.public_sg.id]
+  instance_type   = "t2.micro"
+  count           = 1
+
 
 
   tags = {
@@ -100,7 +106,7 @@ resource "aws_route_table" "aws_rtb" {
   vpc_id = aws_vpc.main-vpc.id
 
   route {
-    cidr_block = var.sub_cidr.public.ip
+    cidr_block = "0.0.0.0/0"
     gateway_id = aws_internet_gateway.aws_igw.id
   }
 
@@ -110,23 +116,12 @@ resource "aws_route_table" "aws_rtb" {
 }
 
 
-/* locals {
-  ingress_rules = [{
-    port        = 443
-    description = "Port 443"
-    },
-    {
-      port        = 80
-      description = "Port 80"
-    }
-  ]
-} */
 
 #creating the security group for public subnet
 #uses variable map for ingress rules
 
 resource "aws_security_group" "public_sg" {
-  name        = "vpc-web-${terraform.workspace}"
+  name        = "vpc-web-${terraform.workspace} public-sg"
   vpc_id      = aws_vpc.main-vpc.id
   description = "core-sg-public"
 
@@ -145,10 +140,15 @@ resource "aws_security_group" "public_sg" {
   }
 }
 
+data "aws_security_group" "public_sg" {
+  name = "vpc-web-${terraform.workspace} public-sg"
+}
+
+
 #creating the security group for private subnet
 
 resource "aws_security_group" "private_sg" {
-  name        = "vpc-web-${terraform.workspace}"
+  name        = "vpc-web-${terraform.workspace} private-sg"
   vpc_id      = aws_vpc.main-vpc.id
   description = "core-sg-private"
 

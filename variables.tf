@@ -23,7 +23,7 @@ variable "sub_cidr" {
     public = {
       ip = "10.0.1.0/24"
       az = "us-west-2a"
-    }
+    },
     private = {
       ip = "10.0.2.0/24"
       az = "us-west-2b"
@@ -58,3 +58,14 @@ variable "web_ingress" {
 
 
 
+/* locals {
+  ingress_rules = [{
+    port        = 443
+    description = "Port 443"
+    },
+    {
+      port        = 80
+      description = "Port 80"
+    }
+  ]
+} */
